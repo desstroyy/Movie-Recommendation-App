@@ -35,27 +35,39 @@ public class MovieSearchAdapter extends ArrayAdapter<Movie> {
         }
 
         Movie movie = getItem(position);
-        TextView titleView = convertView.findViewById(R.id.titleView);
-        ImageView posterView = convertView.findViewById(R.id.moviePoster);
-        RatingBar ratingBar = convertView.findViewById(R.id.movieRating);
 
-        titleView.setText(movie.title);
-        ratingBar.setRating((float) movie.voteAverage / 2);
+        if (movie != null) {
+            TextView titleView = convertView.findViewById(R.id.titleView);
+            ImageView posterView = convertView.findViewById(R.id.moviePoster);
+            RatingBar ratingBar = convertView.findViewById(R.id.movieRating);
 
-        // Load poster using Glide with null check
-        String posterPath = movie.getFullPosterPath();
-        if (posterPath != null && !posterPath.isEmpty()) {
-            Glide.with(context)
-                    .load(posterPath)
-                    .placeholder(R.drawable.default_movie_poster)
-                    .into(posterView);
+            if (titleView != null) {
+                titleView.setText(movie.title); // Ensure title is not null
+            }
+
+            if (ratingBar != null) {
+                ratingBar.setRating((float) movie.voteAverage / 2); // Set the rating value
+            }
+
+            String posterPath = movie.getFullPosterPath();
+            if (posterView != null) {
+                if (posterPath != null && !posterPath.isEmpty()) {
+                    Glide.with(context)
+                            .load(posterPath)
+                            .placeholder(R.drawable.default_movie_poster)
+                            .into(posterView);
+                } else {
+                    posterView.setImageResource(R.drawable.default_movie_poster);  // Set placeholder if no poster
+                    Log.d("MovieSearchAdapter", "No poster available for movie: " + movie.title);
+                }
+            }
         } else {
-            posterView.setImageResource(R.drawable.default_movie_poster);  // Set placeholder if no poster
-            Log.d("MovieSearchAdapter", "No poster available for movie: " + movie.title);
+            Log.e("MovieSearchAdapter", "Movie at position " + position + " is null");
         }
 
         return convertView;
     }
+
 
 
     public void updateList(List<Movie> newMovies) {
@@ -65,9 +77,10 @@ public class MovieSearchAdapter extends ArrayAdapter<Movie> {
             return;
         }
 
-        clear();
-        addAll(newMovies);
-        notifyDataSetChanged();
+        clear(); // Clear current list
+        addAll(newMovies); // Add new movies
+        notifyDataSetChanged(); // Notify adapter that data has changed
     }
+
 
 }

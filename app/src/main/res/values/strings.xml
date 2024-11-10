@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">MovieRec</string>
+    <string name="tmdb_api_key">7cca7a6c7225bd5c80da309bec72f34a</string>
+
 </resources>

@@ -233,8 +233,9 @@ public class MainActivity extends AppCompatActivity {
     private void performSearch(String query, ProgressBar searchProgress, MovieSearchAdapter searchAdapter) {
         Log.d(TAG, "Performing search for: " + query);
         searchProgress.setVisibility(View.VISIBLE);
+        String apiKey = getString(R.string.tmdb_api_key);
 
-        api.searchMovies(ApiConfig.API_KEY, query, false)
+        api.searchMovies(apiKey, query, false)
                 .enqueue(new Callback<MovieResponse>() {
                     @Override
                     public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
