@@ -22,6 +22,7 @@ public class MovieSearchAdapter extends ArrayAdapter<Movie> {
     private Context context;
     private List<Movie> movies;
 
+
     public MovieSearchAdapter(Context context, List<Movie> movies) {
         super(context, 0, movies);
         this.context = context;
@@ -47,6 +48,8 @@ public class MovieSearchAdapter extends ArrayAdapter<Movie> {
 
             if (ratingBar != null) {
                 ratingBar.setRating((float) movie.voteAverage / 2); // Set the rating value
+                ratingBar.setIsIndicator(true);  // Prevent user from changing the rating
+
             }
 
             String posterPath = movie.getFullPosterPath();

@@ -11,8 +11,6 @@ public class Movie {
     @SerializedName("title")
     public String title;
 
-    @SerializedName("overview")
-    public String overview;
 
     @SerializedName("poster_path")
     public String posterPath;
@@ -20,8 +18,7 @@ public class Movie {
     @SerializedName("vote_average")
     public double voteAverage;
 
-    @SerializedName("genre_ids")
-    public List<Integer> genreIds;
+
 
     public float rating;
 

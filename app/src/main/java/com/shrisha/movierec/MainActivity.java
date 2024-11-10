@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
+
             // Load watched movies
             try {
                 loadWatchedMovies();

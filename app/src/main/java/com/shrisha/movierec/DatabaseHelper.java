@@ -17,8 +17,9 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
+    private static final int DATABASE_VERSION = 2;  // Incremented version number
+
     private static final String DATABASE_NAME = "movies.db";
-    private static final int DATABASE_VERSION = 1;
 
     // Table names
     private static final String TABLE_MOVIES = "movies";
@@ -34,10 +35,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String CREATE_MOVIES_TABLE = "CREATE TABLE " + TABLE_MOVIES + " (" +
                 "id INTEGER PRIMARY KEY, " +
                 "title TEXT NOT NULL, " +
-                "overview TEXT, " +
-                "poster_path TEXT, " +
-                "genre_ids TEXT, " +  // Store as JSON string
-                "vote_average REAL)";
+                "poster_path TEXT, " +  // Include poster_path column
+                "vote_average REAL, " +
+                "genre_ids TEXT)";  // Store genre_ids as a JSON string
 
         // Create watched movies table
         String CREATE_WATCHED_MOVIES_TABLE = "CREATE TABLE " + TABLE_WATCHED_MOVIES + " (" +
@@ -50,12 +50,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_WATCHED_MOVIES_TABLE);
     }
 
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_WATCHED_MOVIES);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MOVIES);
-        onCreate(db);
+        if (oldVersion < 2) {
+            // Add the missing columns (e.g., poster_path)
+            db.execSQL("ALTER TABLE " + TABLE_MOVIES + " ADD COLUMN poster_path TEXT");
+        }
     }
+
+
 
 
 
@@ -86,9 +90,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues movieValues = new ContentValues();
         movieValues.put("id", movie.id);  // Using public field directly
         movieValues.put("title", movie.title);  // Using public field directly
-        movieValues.put("overview", movie.overview);
-        movieValues.put("poster_path", movie.posterPath);
-        movieValues.put("genre_ids", new Gson().toJson(movie.genreIds));
         movieValues.put("vote_average", movie.voteAverage);
 
         db.insertWithOnConflict(TABLE_MOVIES, null, movieValues, SQLiteDatabase.CONFLICT_REPLACE);
@@ -132,9 +133,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Modified query to join watched_movies with movies table to get all info
         String query = "SELECT w.movie_id, w.rating, " +
-                "m.title, m.overview, m.poster_path, m.genre_ids " +
+                "m.title, m.poster_path, m.genre_ids " +
                 "FROM " + TABLE_WATCHED_MOVIES + " w " +
                 "JOIN " + TABLE_MOVIES + " m ON w.movie_id = m.id";
+
 
         Cursor cursor = db.rawQuery(query, null);
 
@@ -144,23 +146,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 int movieIdIndex = cursor.getColumnIndexOrThrow("movie_id");
                 int ratingIndex = cursor.getColumnIndexOrThrow("rating");
                 int titleIndex = cursor.getColumnIndexOrThrow("title");
-                int overviewIndex = cursor.getColumnIndexOrThrow("overview");
-                int posterPathIndex = cursor.getColumnIndexOrThrow("poster_path");
-                int genreIdsIndex = cursor.getColumnIndexOrThrow("genre_ids");
 
                 do {
                     Movie movie = new Movie();
                     movie.id = cursor.getInt(movieIdIndex);
                     movie.rating = cursor.getFloat(ratingIndex);
                     movie.title = cursor.getString(titleIndex);
-                    movie.overview = cursor.getString(overviewIndex);
-                    movie.posterPath = cursor.getString(posterPathIndex);
 
-                    String genreIdsJson = cursor.getString(genreIdsIndex);
-                    if (genreIdsJson != null) {
-                        movie.genreIds = new Gson().fromJson(genreIdsJson,
-                                new TypeToken<List<Integer>>(){}.getType());
-                    }
+
 
                     movieList.add(movie);
                 } while (cursor.moveToNext());
