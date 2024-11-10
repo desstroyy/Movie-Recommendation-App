@@ -30,6 +30,9 @@ public class Movie {
         }
         return null;
     }
+    public String getPosterPath() {
+        return posterPath;
+    }
     public int getId(){
         return id;
     }
